@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet/less" href="/style.less">
+	<script src="/less.js"></script>
+	<script src="/jquery-1.11.1.min.js"></script>
+</head>
+<body>
+	<header>
+		<div class="wrapper">
+			<img src="/gfx/logo.png">
+			<span>Twitter Clone</span>
+		</div>
+		<title>TwitterClone :: Login</title>
+	</header>
+	<div id="content">
+		<div>
+			<!-- display the error message here -->
+			
+			<div id="login_box_outter">
+
+				<div id="login_box">
+				<center><label><b>.:: LOGIN ::. </b></label></center>
+				<br />
+					<form action="/validate" id="validate">
+						<div>
+							<label class="control-label res-clabel" for="user">Username</label>
+							<div><input id="user" type="text" name="user"/></div>
+						</div>
+						<div>
+							<label for="pass">Password</label>
+							<div><input id="pass" type="password" name="pass" /></div>
+						</div>
+						<button type="submit" >Sign in</button>		 
+					</form>
+				</div>
+				<br />
+				<center><div id="message"></div></center>
+			</div>
+		</div>
+	</div>
+<script>
+$.ajax({
+  url: "http://fiddle.jshell.net/favicon.png",
+  beforeSend: function( xhr ) {
+    xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
+  }
+})
+  .done(function( data ) {
+    if ( console && console.log ) {
+      console.log( "Sample of data:", data.slice( 0, 100 ) );
+    }
+  });
+
+
+$( "#validate" ).submit(function( event ) {
+ 
+  // Stop form from submitting normally
+  event.preventDefault();
+ 
+  // Get some values from elements on the page:
+  var $form = $( this ),
+    username = $form.find( "input[name='user']" ).val(),
+    password = $form.find( "input[name='pass']" ).val(),
+    url = $form.attr( "action" );
+
+    //process input data
+    var posting = $.post(url, {username:username, password:password});
+
+      // Put the results in a div
+	  posting.done(function( o ) {
+	    window.location.replace(o.url);
+	  })
+	  .fail(function( h ) {
+	  	var o = h.responseJSON;
+	    $( "#message" ).empty().append(o.message);
+	  });
+
+ 
+  // TODO: Implement Ajax request
+});
+</script>
+	<footer>
+		<div class="wrapper">
+			A Twitter Clone by TUAN-ANH BUI
+		</div>
+	</footer>
+</body>
+</html>

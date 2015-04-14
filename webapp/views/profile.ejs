@@ -1,0 +1,153 @@
+<div class="panel right">
+  <center><h1><b>Create a Tweet</b></h1></center>
+  <p>
+    <form action="/newTweet" id="newTweet">
+      <textarea id="status" name="text" class="ribbitText"></textarea>
+      <font size=1><span id="text_counter"></span></font>      
+      <br />
+      <input id="btn_submit" type="submit" value="Tweet!">
+      
+    </form>
+    <center><div id="message"></div></center>
+    <style>
+    .overlimit{
+       color: red;       
+    }​
+    </style>
+  </p>
+</div>
+<script>
+
+
+$( "#newTweet" ).submit(function( event ) {
+ 
+  // Stop form from submitting normally
+  event.preventDefault();
+ 
+  // Get some values from elements on the page:
+  var $form = $( this ),
+    text = $form.find( "textarea[name='text']" ).val(),
+    url = $form.attr( "action" );
+ 
+  // Send the data using post
+  var posting = $.post( url, { text: text } );
+ 
+  // Put the results in a div
+  posting.done(function( o ) {
+    //$("status").empty();
+    //console.log("data:" + o);
+    $( "#message" ).empty().append( "New tweet posted successfully!" );
+    //alert("New tweet posted successfully!")
+    //window.location.replace("/usr/"+username);
+    //window.location.replace(document.URL);
+  })
+  .fail(function( h ) {
+    var o = h.responseJSON;
+    $( "#message" ).empty().append( "o.message no it doesn't work" );
+  });
+});
+
+// count down number of allowed chracters
+$(document).ready(function(){
+    var left = 140;
+    // just disable button when nothing is inserted
+    $('#btn_submit').attr('disabled', 'disabled');    
+
+    $('#text_counter').text('Characters left: ' + left);
+
+        $('#status').keyup(function () {
+
+        // countdown..
+        left = 140 - $(this).val().length;
+
+        // if total chars exceed allowed, then disable button
+        if(left < 0  || left == 140){
+            $('#text_counter').addClass("overlimit");
+            $('#btn_submit').attr('disabled', 'disabled');
+        }
+        if(left >= 0){ // otherwise, it's okay
+            $('#text_counter').removeClass("overlimit");
+            $('#btn_submit').removeAttr('disabled');
+        }
+        // display number of chars remained
+        $('#text_counter').text('Characters left: ' + left);
+    });
+});
+
+
+</script>
+
+
+
+<div id="ribbits" class="panel left">
+	<h1>
+    Timeline of <b><i><%=fullname%></i></b> 
+    (@<%=username%>)
+    <br />
+    <a href=<%="/usr/"+username+"/followers/"%>>Followers</a> | 
+    <a href=<%="/usr/"+username+"/following/"%>>Following</a>
+    
+  </h1>
+
+  <!-- follow/unfollow button -->
+  <div>
+      <!-- only display follow button of other user account -->
+      <% if (current_user != username) { %>
+        <form method="POST" 
+              action='<%=(following) ? "/unfollow" : "/follow" %>'
+               id="user_follow">          
+          <input name="_following_user" type="hidden" value="<%=current_user%>">
+          <input name="_followed_user" type="hidden" value="<%=username%>">
+          <% if (following == false) { %>
+              <input type="submit" value="Follow" />              
+          <% } else if (following == true) { %>
+              <input type="submit" value="Unfollow" />
+          <% } %>
+        </form>
+      <% } %>
+  </div>
+
+  <script>
+  $( "#user_follow" ).submit(function( event ) {   
+    // Stop form from submitting normally
+    event.preventDefault();
+   
+    // Get some values from elements on the page:
+    var $form = $( this ),
+      _followed_user = $form.find( "input[name='_followed_user']" ).val(),
+      _following_user = $form.find( "input[name='_following_user']" ).val(),
+      url = $form.attr( "action" );
+   
+    // Send the data using post
+    var posting = $.post( url, { following_user: _following_user, followed_user: _followed_user } );
+   
+    // Put the results in a div
+    posting.done(function( o ) {
+      //$( "#result" ).empty().append( o.message );
+      window.location.reload()
+    })
+    .fail(function( h ) {
+      var o = h.responseJSON;
+      $( "#result" ).empty().append( o.message );
+    });
+  });
+  </script>
+
+
+    
+  <% for(var i=0; i < tweets.length; i++) { %>
+    <div class="ribbitWrapper">
+      <img class="avatar" src="/gfx/user2.png">
+      <span class="name">
+          <a href="/usr/<%= tweets[i].username %>">
+              <%= tweets[i].username %>
+          </a>
+      </span>
+      <span class="time"><%= tweets[i].display_time %></span>
+      <p><%= tweets[i].text %></p>
+    </div>
+  <% } %>
+</div>
+
+
+
